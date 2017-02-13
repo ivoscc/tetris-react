@@ -1,0 +1,13 @@
+.grid {
+  border: dashed 2px gray;
+}
+
+.grid td {
+  height: 10px;
+  width: 10px;
+  border: dotted 1px green;
+}
+
+td.piece {
+  background-color: green;
+}
