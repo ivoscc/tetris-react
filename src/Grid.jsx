@@ -20,7 +20,7 @@ export default class Grid extends Component {
     const nextPosition = nextProps.piecePosition;
 
     // If last movement was invalid, we don't care about validating the current
-    // one, because this update is the parent setting the position to the
+    // one, because this update is the parent re-setting the position to the
     // previous good value.
     if (this.state.ignoreLast) {
       this.state.ignoreLast = false;
@@ -28,28 +28,20 @@ export default class Grid extends Component {
     }
 
     const goingDown = (nextPosition[0] > currentPosition[0]);
-    const collided = this.checkCollision(nextPiece, nextPosition);
-    const outOfBounds = this.outOfBounds(nextPiece, nextPosition);
-
-    if (collided || outOfBounds) {
-
-      if (nextPosition[0] === 0) {
-        this.state.ignoreLast = true;
-        this.props.gameOverFn();
+    if (this.outOfBounds(nextPiece, nextPosition) ||
+        this.checkCollision(nextPiece, nextPosition)) {
+      this.state.ignoreLast = true;
+      if (goingDown) {
+        if (nextPosition[0] === 1) {
+          // We've collided in the first position
+          this.props.gameOverFn();
+        } else {
+          this.setPieceValues(positions, currentPiece, currentPosition, 1);
+          this.props.stopFn();
+        }
         return;
-      } else if (goingDown) {
-        this.props.stopFn();
-        this.setPieceValues(positions, currentPiece, currentPosition, 1);
-        this.setState({ clearNext: false });
-      } else {
-        this.state.ignoreLast = true;
-        this.props.outOfBoundsFn(currentPosition);
       }
-
-      if (this.deleteFullRows(positions, currentPiece, currentPosition)) {
-        this.setState({ positions });
-      }
-
+      this.props.outOfBoundsFn(currentPiece, currentPosition);
       return;
     }
 

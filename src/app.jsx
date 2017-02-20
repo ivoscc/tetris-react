@@ -38,8 +38,8 @@ class Game extends Component {
     }
   }
 
-  outOfBounds(piecePosition) {
-    this.setState({ piecePosition });
+  outOfBounds(piece, piecePosition) {
+    this.setState({ piece, piecePosition });
   }
 
   stop() {
