@@ -55,6 +55,21 @@ export default class Grid extends Component {
     this.setState({ positions, clearNext: true });
   }
 
+  setPieceValues(positions, piece, piecePosition, fixedValue = null) {
+    const [startY, startX] = piecePosition;
+    const startOffset = (startY * this.props.width) + startX;
+
+    for (let rowOffset = 0; rowOffset < piece.length; rowOffset += 1) {
+      piece[rowOffset].forEach((value, colOffset) => {
+        const offset = startOffset + (this.props.width * rowOffset) + colOffset;
+        const newValue = (fixedValue === null) ? value : fixedValue;
+        if (value === 2) {
+          positions[offset] = newValue;
+        }
+      });
+    }
+  }
+
   deleteFullRows(positions, piece, piecePosition) {
     const pieceY = piecePosition[0];
     let deletedLinesCounter = 0;
@@ -79,20 +94,6 @@ export default class Grid extends Component {
     return (deletedLinesCounter > 0);
   }
 
-  setPieceValues(positions, piece, piecePosition, fixedValue = null) {
-    const [startY, startX] = piecePosition;
-    const startOffset = (startY * this.props.width) + startX;
-
-    for (let rowOffset = 0; rowOffset < piece.length; rowOffset += 1) {
-      piece[rowOffset].forEach((value, colOffset) => {
-        const offset = startOffset + (this.props.width * rowOffset) + colOffset;
-        const newValue = (fixedValue === null) ? value : fixedValue;
-        if (value === 2) {
-          positions[offset] = newValue;
-        }
-      });
-    }
-  }
 
   reachedTheBottom(piece, nextPosition) {
     return (piece.length + nextPosition[0] > this.props.height);
@@ -112,18 +113,17 @@ export default class Grid extends Component {
     const pieceWidth = piece[0].length;
     const [nextY, nextX] = nextPosition;
 
-    let collided = false;
     for (let rowOffset = 0; rowOffset < pieceHeight; rowOffset += 1) {
-      piece[rowOffset].forEach((pieceValue, colOffset) => {
-        if (pieceValue === 0) { return; }
-        const offset = ((nextY + rowOffset) * this.props.width) + nextX + colOffset;
-        if (this.state.positions[offset] === 1) {
-          collided = true;
+      for (let colOffset = 0; colOffset < pieceWidth; colOffset += 1) {
+        if (piece[rowOffset][colOffset] !== 0) {
+          const offset = ((nextY + rowOffset) * this.props.width) + nextX + colOffset;
+          if (this.state.positions[offset] === 1) {
+            return true;
+          }
         }
-      });
+      }
     }
-
-    return collided;
+    return false;
   }
 
   createRow(rowIndex) {
